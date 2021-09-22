@@ -8,7 +8,6 @@
 
 import Foundation
 
-
 import UIKit
 
 enum Player {
@@ -27,8 +26,8 @@ class Game {
 
     // MARK: - Methods
     func incrementScore(forPlayer player: Player) {
-        if let score = scores[player], let scoreIndex = Game.points.index(of: score) {
-            if score < 30 {
+        if let score = scores[player], let scoreIndex = Game.points.firstIndex(of: score) {
+            if score < 40 {
                 scores[player] = Game.points[scoreIndex + 1]
             } else {
                 end(withWinner: player)
@@ -36,7 +35,21 @@ class Game {
         }
     }
 
-    private func end(withWinner winner: Player) {
+    fileprivate func end(withWinner winner: Player) {
         self.winner = winner
+    }
+}
+
+class TieBreakGame: Game {
+    private static let scoreToReach = 7
+    private var isTwoPointsAhead: Bool {
+        abs(scores[.one]! - scores[.two]!) >= 2
+    }
+
+    override func incrementScore(forPlayer player: Player) {
+        scores[player]! += 1
+        if scores[player]! >= TieBreakGame.scoreToReach && isTwoPointsAhead {
+            end(withWinner: player)
+        }
     }
 }
